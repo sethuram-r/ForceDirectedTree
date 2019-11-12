@@ -1,0 +1,221 @@
+{"name": "root",
+"children": [
+  {
+    "name": "folder/",
+    "children": [
+      {
+        "name": "subfolder1/saplie1.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Write"},
+          {"name": "Delete"}
+        ]
+      },    {
+        "name": "subfolder1/saplie3.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Write"},
+          {"name": "Delete"}
+        ]
+      },
+      {
+        "name": "subfolder12/saplie_without_access.txt"
+      },
+      {
+        "name": "subfolder1/saplie2.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Delete"}
+        ]
+      },
+      {
+        "name": "subfolder1/",
+        "children": [
+          {
+            "name": "subfolder11/saplie1.txt",
+            "children": [
+              {"name": "Delete"},
+              {"name": "Write"}
+            ]
+          },
+          {
+            "name": "subfolder12/saplie2.txt",
+            "children": [
+              {"name": "Delete"},
+              {"name": "Write"}
+            ]
+          },
+          {
+            "name": "subfolder12/saplie_without_access.txt"
+          }
+        ]
+      }
+    ]
+},
+  {
+    "name": "folder2/",
+    "children": [
+      {
+        "name": "subfolder2/saplie1.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Write"}
+        ]
+      },
+      {
+        "name": "subfolder23/saplie_without_access.txt"
+      },
+      {
+        "name": "subfolder2/saplie2.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Delete"}
+        ]
+      },
+      {
+        "name": "subfolder2/",
+        "children": [
+          {
+            "name": "subfolder21/saplie1.txt",
+            "children": [
+              {"name": "Delete"},
+              {"name": "Write"}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "folder3/",
+    "children": [
+      {
+        "name": "subfolder3/saplie1.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Write"}
+        ]
+      },
+      {
+        "name": "subfolder3/saplie2.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Delete"}
+        ]
+      },
+      {
+        "name": "subfolder3/",
+        "children": [
+          {
+            "name": "subfolder31/saplie1.txt",
+            "children": [
+              {"name": "Delete"},
+              {"name": "Write"}
+            ]
+          },
+          {
+            "name": "subfolder32/saplie_without_access.txt"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "folder4/",
+    "children": [
+      {
+        "name": "subfolder4/saplie1.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Write"}
+        ]
+      },
+      {
+        "name": "subfolder4/saplie2.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Delete"}
+        ]
+      },
+      {
+        "name": "subfolder4/",
+        "children": [
+          {
+            "name": "subfolder41/saplie1.txt",
+            "children": [
+              {"name": "Delete"},
+              {"name": "Write"}
+            ]
+          },
+          {
+            "name": "subfolder42/saplie_without_access.txt"
+          }
+        ]
+      },
+      {
+        "name": "subfolder42/",
+        "children": [
+          {
+            "name": "subfolder421/saplie1.txt",
+            "children": [
+              {"name": "Delete"},
+              {"name": "Write"}
+            ]
+          },
+          {
+            "name": "subfolder422/saplie_without_access.txt"
+          }
+        ]
+      }
+    ]
+  },  {
+    "name": "folder5/",
+    "children": [
+      {
+        "name": "subfolder5/saplie1.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Write"}
+        ]
+      },
+      {
+        "name": "subfolder5/saplie2.txt",
+        "children": [
+          {"name": "Read"},
+          {"name": "Delete"}
+        ]
+      },
+      {
+        "name": "subfolder5/",
+        "children": [
+          {
+            "name": "subfolder51/saplie1.txt",
+            "children": [
+              {"name": "Delete"},
+              {"name": "Write"}
+            ]
+          },
+          {
+            "name": "subfolder52/saplie_without_access.txt"
+          }
+        ]
+      },
+      {
+        "name": "subfolder52/",
+        "children": [
+          {
+            "name": "subfolder521/saplie1.txt",
+            "children": [
+              {"name": "Delete"},
+              {"name": "Write"}
+            ]
+          },
+          {
+            "name": "subfolder522/saplie_without_access.txt"
+          }
+        ]
+      }
+    ]
+  }
+]
+}
