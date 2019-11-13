@@ -2,283 +2,248 @@
 <meta charset="utf-8">
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-<style>
-    .link {
-        fill: none;
-        stroke: #666;
-        stroke-width: 1.5px;
-    }
-    div.tooltip {
-        line-height: 1;
-        font-size: 12px;
-        text-align: center;
-        background: white;
-        border: 2px solid #666;
-        border-radius: 8px;
-        pointer-events: none;
-        color: white;
-    }
-    body {
-        overflow:hidden;
-        margin:0;
-    }
-    g{
-        cursor: none;
-    }
-</style>
 <body>
-<div class="flow-graph">
+<div class="chart">
 </div>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script>
 
-    let access = ["Read","Write","Delete"];
 
-    // adding tool tip
+    function  forceDirectedTree(){
+        let margin = {top: 20, right: 10, bottom: 20, left: 10};
+        let width = 600;
+        let height = 600;
+        function chart(selection){
+            let data = selection.datum();
+            let chartWidth = width - margin.left - margin.right;
+            let chartHeight = height - margin.top - margin.bottom;
 
-    // create a tooltip
+            let root = d3.hierarchy(data);
+            let links = root.links();
+            let nodes = root.descendants();
+            let simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(10).strength(0.8))
+                .force("charge", d3.forceManyBody().strength(-50))
+                .force("center", d3.forceCenter());
 
+            let previousColour =null;
+            let access = ["Read","Write","Delete"];
 
-    var Tooltip = d3.select(".flow-graph").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
+            let isDragging = false;
 
-    var isDragging = false;
+            // adding tool tip
 
-
-    var mouseover = (d)=>{
-        Tooltip.transition()
-            .duration(200)
-            .style("opacity", (d) =>(!isDragging)?0.97: 0);
-
-
-
-
-        Tooltip.html(()=>{
-
-            var innerContent =
-                "<div class = 'row'>"+
-                "<div class='col'>Object:</div>"+
-                "<div class='col'>"+d.data.name+"</div>"+
-                "</div>";
-            if(!d.children && access.indexOf(d.data.name) in["Read","Write","Delete"]){
-                 innerContent =
-                    "<div class = 'row'>"+
-                    "<div class='col'>Access:</div>"+
-                    "<div class='col'>"+d.data.name+"</div>"+
-                    "</div>";
-            }
-            if(d.children && d.depth===0){
-                innerContent =
-                    "<div class = 'row'>"+
-                    "<div class='col'>Bucket:</div>"+
-                    "<div class='col'>"+d.data.name+"</div>"+
-                    "</div>";
-            }
-            return "<div class='card bg-dark'>"+" <div class='card-body'>"+ innerContent +"</div></div>";
-        }) .style("left", (d3.event.pageX) + "px")
-            .style("top", (d3.event.pageY - 28) + "px");
-    };
+            let Tooltip = selection
+                .append("div")
+                .attr("class", "tooltip")
+                .style("pointer-events","none")
+                .style("border","2px solid #666")
+                .style("border-radius","8px")
+                .style("color","white");
 
 
-    var mouseout = function(d) {
-        Tooltip.transition()
-            .duration(500)
-            .style("opacity", 0);
-    }
+            let duration = 300;
 
 
-    drag = function (simulation ) {
-        function dragstarted(d) {
-            isDragging = true;
-            if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-        }
+            let pulse = () => {
+                var circle = d3.selectAll(".blink");
+                (function repeat() {
+                    circle = circle.transition()
+                        .duration(duration)
+                        .attr("r", 6)
+                        .transition()
+                        .duration(duration*3)
+                        .attr("r", 12)
+                        .ease(d3.easeElasticIn)
+                        .delay((d, i) => i * 20)
+                        // .style("fill", d3.interpolateTurbo(Math.random()))
+                        .on("end", repeat);
+                })();
+            };
 
-        function dragged(d) {
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
-        }
-
-        function dragended(d) {
-            if (!d3.event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-            isDragging = false;
-        }
-
-        return d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-    }
-
-
-
-    d3.json("data/sample.json").then(data => {
-
-        height = 600;
-        width = 600;
-        let previousColour =null;
-        // let margin = {top: 30, right: 20, bottom: 30, left: 30};
-        const root = d3.hierarchy(data);
-        // console.log(root)
-        const links = root.links();
-        // console.log(links)
-        const nodes = root.descendants();
-        // console.log(nodes)
-        const simulation = d3.forceSimulation(nodes)
-            .force("link", d3.forceLink(links).id(d => d.id).distance(10).strength(0.8))
-            .force("charge", d3.forceManyBody().strength(-50))
-            .force("center", d3.forceCenter());
-
-
-
-        var svg = d3.select(".flow-graph") .selectAll('svg').data([data])
-            .enter().append('svg').attr("width", width)
-            .attr("height", height)
-            .style("cursor","move");
-
-        var g = svg.append("g")
-            .attr("class", "everything")
-            .attr("transform", `translate(${width / 2}, ${height / 2})`)
-
-
-        const link = g.append("g")
-            .attr("class", "link")
-            .selectAll("path")
-            .data(links)
-            .join("path")
-
-
-
-        var defs = g.append('svg:defs');
-        defs.append("svg:pattern")
-            .attr("id", "image")
-            .attr("width", 34)
-            .attr("height", 34)
-            .attr("x", -16)
-            .attr("y", -16)
-            .attr("patternUnits", "userSpaceOnUse")
-            .append("svg:image")
-            .attr("xlink:href", "data/bucket.png")
-            .attr("width", 34)
-            .attr("height",34)
-            .attr("x", 0)
-            .attr("y", 0);
-
-
-        const node = g.append("g")
-            .attr("class", "node")
-            .style("cursor", "pointer")
-            .selectAll("circle")
-            .data(nodes)
-            .join("circle")
-            .attr("fill", d => {
-
-                if(d.depth===0) return "url(#image)";
-
-                if(d.children){
-                    if(1 === d.depth){
-                        previousColour = "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
-                        d.data.color = previousColour;
-                        return previousColour;
-                    }else if(d.depth>1){
-                        d.data.color = d.parent.data.color;
-                        return d.parent.data.color;
-                    }
-                }else{
-                    switch(d.data.name){
-                        case "Read":return "#48d146";
-                        case "Write":return "#ff7519";
-                        case "Delete":return "#ff3332";
-                        // default: return
-                    }
+            drag = function (simulation) {
+                function dragstarted(d) {
+                    isDragging = true;
+                    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+                    d.fx = d.x;
+                    d.fy = d.y;
                 }
-            })
-            .attr("class",(d)=> {
-                console.log(d)
-                if(!d.children && access.indexOf(d.data.name) === -1)return "blink";
-                if(d.children && d.depth === 0)return "root";
-            })
-            .attr("stroke", d => {
-                if(d.depth===0){
-                    return null;
-                } else{
-                    if(!d.children){
-                        return "grey"
+
+                function dragged(d) {
+                    d.fx = d3.event.x;
+                    d.fy = d3.event.y;
+                }
+
+                function dragended(d) {
+                    if (!d3.event.active) simulation.alphaTarget(0);
+                    d.fx = null;
+                    d.fy = null;
+                    isDragging = false;
+                }
+
+                return d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended);
+            };
+
+            let mouseover = (d)=>{
+                Tooltip.transition()
+                    .duration(duration)
+                    .style("opacity", (d) =>(!isDragging)?0.97: 0);
+
+                Tooltip.html(()=>{
+
+                    let innerColumns =
+                        "<div class='col'>Object:</div>"+
+                        "<div class='col'>"+d.data.name+"</div>";
+
+                    if(!d.children && access.indexOf(d.data.name) in["Read","Write","Delete"]){
+                        innerColumns =
+                            "<div class='col'>Access:</div>"+
+                            "<div class='col'>"+d.data.name+"</div>";
+                    }
+                    if(d.children && d.depth===0){
+                        innerColumns =
+                            "<div class='col'>Bucket:</div>"+
+                            "<div class='col'>"+d.data.name+"</div>";
+                    }
+                    return "<div class='card bg-dark'>"+"<div class='card-body'>"+
+                        "<div class = 'row'>"+
+                        innerColumns +
+                        "</div>"+
+                        "</div></div>";
+                }) .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+            };
+
+            let mouseout = () => {
+                Tooltip.transition()
+                    .duration(duration)
+                    .style("opacity", 0);
+            };
+
+
+            // Building svg
+            let svg = selection
+                .selectAll('svg')
+                .data([data])
+                .enter()
+                .append('svg')
+                .attr("width", chartWidth)
+                .attr("height", chartHeight)
+                .style("cursor","move");
+            svg = svg.merge(svg);
+
+            let g = svg.append("g")
+                .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+
+            let link = g.append("g")
+                .attr("fill", "none")
+                .attr("stroke", "#666")
+                .attr("stroke-width", "1.5px")
+                .selectAll("path")
+                .data(links)
+                .join("path");
+
+
+            let defs = g.append('svg:defs');
+            defs.append("svg:pattern")
+                .attr("id", "image")
+                .attr("width", 34)
+                .attr("height", 34)
+                .attr("x", -16)
+                .attr("y", -16)
+                .attr("patternUnits", "userSpaceOnUse")
+                .attr("patternUnits", "userSpaceOnUse")
+                .append("svg:image")
+                .attr("xlink:href", "data/bucket.png")
+                .attr("width", 34)
+                .attr("height",34)
+                .attr("x", 0)
+                .attr("y", 0);
+
+
+            let node = g.append("g")
+                .attr("class", "node")
+                .style("cursor", "pointer")
+                .selectAll("circle")
+                .data(nodes)
+                .join("circle")
+                .attr("fill", d => {
+
+                    if(d.depth === 0) return "url(#image)";
+                    if(d.children){
+                        if(1 === d.depth){
+                            previousColour = "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
+                            d.data.color = previousColour;
+                            return previousColour;
+                        }else if(d.depth>1){
+                            d.data.color = d.parent.data.color;
+                            return d.parent.data.color;
+                        }
                     }else{
-                        return "white"
+                        switch(d.data.name){
+                            case "Read":return "#48d146";
+                            case "Write":return "#33bbff";
+                            case "Delete":return "#ff3332";
+                            // default: return
+                        }
                     }
-                }
-            })
-            .attr("stroke-width", 2)
-            .attr("r", d => {
-                if(d.depth===0){
-                    return 18;
-                } else{
-                    if(!d.children){
-                        return 6
-                    }else{
-                        return 12
-                    }
-                }
+                })
+                .attr("class",(d)=> (!d.children && access.indexOf(d.data.name) === -1)? "blink": null)
+                .attr("stroke", d => (d.depth===0)?null:(!d.children)?"grey":"white")
+                .attr("stroke-width", 2)
+                .attr("r", d => (d.depth===0)?18:(!d.children)?6:12)
+                .on("mouseover", mouseover)
+                .on("mouseout", mouseout)
+                .each(pulse)
+                .call(drag(simulation));
 
-            })
-            .on("mouseover", mouseover)
-            .on("mouseout", mouseout)
-            .each(pulse)
-            .call(drag(simulation));
+            simulation.on("tick", () => {
+                link.attr("d", function(d) {
+                    let dx = d.target.x - d.source.x,
+                        dy = d.target.y - d.source.y,
+                        dr = Math.sqrt(dx * dx + dy * dy);
+                    return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 1 0,1 " + d.target.x + "," + d.target.y;
+                });
 
-
-
-        simulation.on("tick", () => {
-            link.attr("d", function(d) {
-                var dx = d.target.x - d.source.x,
-                    dy = d.target.y - d.source.y,
-                    dr = Math.sqrt(dx * dx + dy * dy);
-                return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 1 0,1 " + d.target.x + "," + d.target.y;
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
             });
 
-            node
-                .attr("cx", d => d.x)
-                .attr("cy", d => d.y);
-        });
+            //add zoom capabilities
+            let zoomHandler = d3.zoom()
+                .on("zoom",zoomAction);
 
-        //add zoom capabilities
-        var zoom_handler = d3.zoom()
-            .on("zoom",zoom_actions);
-
-        //Zoom functions
-        function zoom_actions(){
-            g.attr("transform", `translate(${width / 2+ d3.event.transform.x}, ${height / 2+ d3.event.transform.y })`+ "scale(" + d3.event.transform.k + ")");
+            //Zoom functions
+            function zoomAction(){
+                g.attr("transform", `translate(${width / 2+ d3.event.transform.x}, ${height / 2+ d3.event.transform.y })`+ "scale(" + d3.event.transform.k + ")");
+            }
+            zoomHandler(svg);
         }
-        zoom_handler(svg);
+        chart.width = function (_) {
+            return arguments.length ? ((width = _) , chart) : width;
+        };
+        chart.height = function (_) {
+            return arguments.length ? ((height = _) , chart) : height;
+        };
+        chart.margin = function (_) {
+            return arguments.length ? ((margin = _) , chart) : margin;
+        };
+        return chart;
+    }
 
-        // adding animation to nodes without access
-
-
-
-        function pulse() {
-            var circle = d3.selectAll(".blink");
-            (function repeat() {
-                circle = circle.transition()
-                    .duration(200)
-                    .attr("r", 6)
-                    .transition()
-                    .duration(800)
-                    .attr("r", 12)
-                    .ease(d3.easeElasticIn)
-                    .delay((d, i) => i * 20)
-                    // .style("fill", d3.interpolateTurbo(Math.random()))
-                    .on("end", repeat);
-            })();
-        }
+    const customForceDirectedTree = forceDirectedTree();
+    customForceDirectedTree.width(700).height(700);
 
 
-
+    d3.json("data/sample.json", {crossOrigin: "anonymous"}).then((data) =>{
+        d3.select('.chart')
+            .datum(data)
+            .call(customForceDirectedTree);
     });
-
 
 </script>
